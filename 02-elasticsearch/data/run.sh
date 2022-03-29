@@ -45,3 +45,8 @@ sudo ./elastic-agent install  \
   --fleet-server-service-token=AAEAAWVsYXN0aWMvZmxlZXQtc2VydmVyL3Rva2VuLTE2NDg1NTAwNzI1Nzg6RE5ISGJkVEFTQXVLMjRsY2dtM2t0dw \
   --fleet-server-policy=fleet-server-policy \
   --fleet-server-es-ca-trusted-fingerprint=92c1ddc4cd8e1eda8296f67fbd11680102aecdf2d38eaebf8ae6fe92283eeb2e
+
+
+
+kibana_system
+Rnpl1Ahg6PMsUReEfMij
