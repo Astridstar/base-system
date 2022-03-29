@@ -4,8 +4,10 @@ services:
   reverse-proxy:
     # The official v2 Traefik docker image
     image: traefik:v2.6
+    # Container name
+    container_name: traefik
     # Enables the web UI and tells Traefik to listen to docker #--api.insecure=true 
-    command: --api.insecure=true --providers.docker 
+    # command: --providers.docker --api.insecure=true 
     ports:
       # The HTTP port
       - "80:80"
@@ -14,10 +16,13 @@ services:
       # The Web UI (enabled by --api.insecure=true)
       - "8080:8080"
       # Elasticsearch port
-      - "9200:9200/tcp"    
+      - "9200:9200"    
     volumes:
-      # So that Traefik can listen to the Docker events
-      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/traefik.yaml:/traefik.yml:ro
+    networks:
+      - proxy
     labels:
-      - "traefik.tcp.routers.elasticsearch.entrypoints=9200"
-
+      - "traefik.enable=true"
+networks:
+  proxy:
+    external: true

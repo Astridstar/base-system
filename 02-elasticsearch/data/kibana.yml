@@ -1,0 +1,22 @@
+### >>>>>>> BACKUP START: Kibana interactive setup (2022-03-28T05:50:23.689Z)
+
+#
+# ** THIS IS AN AUTO-GENERATED FILE **
+#
+
+# Default Kibana configuration for docker target
+#server.host: "0.0.0.0"
+#server.shutdownTimeout: "5s"
+#elasticsearch.hosts: [ "http://elasticsearch:9200" ]
+#monitoring.ui.container.elasticsearch.enabled: true
+### >>>>>>> BACKUP END: Kibana interactive setup (2022-03-28T05:50:23.689Z)
+
+# This section was automatically generated during setup.
+server.host: 0.0.0.0
+server.shutdownTimeout: 5s
+elasticsearch.hosts: ['https://172.18.0.3:9200']
+monitoring.ui.container.elasticsearch.enabled: true
+elasticsearch.serviceAccountToken: AAEAAWVsYXN0aWMva2liYW5hL2Vucm9sbC1wcm9jZXNzLXRva2VuLTE2NDg0NDY2MjMwMzU6WjYwU0NUeE1RRWlWR3JvdGFsbXI4dw
+elasticsearch.ssl.certificateAuthorities: [/usr/share/kibana/data/ca_1648446623684.crt]
+xpack.fleet.outputs: [{id: fleet-default-output, name: default, is_default: true, is_default_monitoring: true, type: elasticsearch, hosts: ['https://172.18.0.3:9200'], ca_trusted_fingerprint: 80dcb633d9b7f98eaa5830643b63cdf1c70054da1678239805f6ca6e14c25ce4}]
+
