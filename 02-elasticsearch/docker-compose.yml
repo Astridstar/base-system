@@ -2,11 +2,15 @@ version: '3'
 
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.1.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
     container_name: es01
     ports:
       - "9200:9200"
       - "9300:9300"
+    volumes:
+      - esdata01:/usr/share/elasticsearch/data
+    networks:
+      - elastic
     ulimits:
       memlock:
         soft: -1
@@ -14,8 +18,6 @@ services:
       nofile:
         soft: 65536
         hard: 65536
-    networks:
-      - elastic
     environment:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
@@ -24,10 +26,12 @@ services:
       - xpack.security.authc.api_key.enabled=true
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:8.1.1
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
     container_name: kibana
     ports:
       - "5601:5601"
+    volumes:
+      - kibanadata:/usr/share/kibana/data
     networks:
       - elastic
     environment:
@@ -35,7 +39,16 @@ services:
       - xpack.encryptedSavedObjects.encryptionKey=12a4c52a17ca1bf704c9b3c0484a2674
       - xpack.reporting.encryptionKey=e219b4041e0d4c05c75ea86056da8306
       - xpack.security.encryptionKey=d28814bcf1e6c7a2a3cb5b281f84d23f
-   
+
 networks:
   elastic:
     external: true
+
+volumes:
+  esdata01:
+    driver: local
+  kibanadata:
+    driver: local
+
+
+
