@@ -2,6 +2,7 @@
 - traefik
 - elasticsearch
 - kibana
+- postgres database
 
 ---
 ## 1. Run proxy as a reverse proxy
@@ -24,3 +25,8 @@ To verify the enrollment for kibana
 To grab the cert out for other comms
 > *docker cp es01:/usr/share/elasticsearch/config/certs/http_ca.crt .*
 
+---
+## 3. Postgresql database
+*Persistency is not there yet*
+
+[Reference](https://towardsdatascience.com/local-development-set-up-of-postgresql-with-docker-c022632f13ea)

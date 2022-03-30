@@ -1,0 +1,19 @@
+version: "3.4"
+services:
+    postgres_database:
+      image: "postgres:latest"
+      container_name: postgres  #nopcommerce_postgres_server
+      restart: "always"
+      environment:
+        POSTGRES_PASSWORD: "SuperSecret"
+
+    pgadmin:
+      image: dpage/pgadmin4
+      container_name: pgadmin
+      ports:
+        - "6336:80"
+      environment:
+        - PGADMIN_DEFAULT_EMAIL=user@domain.local
+        - PGADMIN_DEFAULT_PASSWORD=SuperSecret
+      depends_on:
+          - postgres_database

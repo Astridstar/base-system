@@ -1,0 +1,7 @@
+version: "3.4"
+services:
+    nopcommerce_web:
+      image: nopcommerceteam/nopcommerce:latest
+      container_name: nopcommerce  
+      ports:
+          - "6337:80"
