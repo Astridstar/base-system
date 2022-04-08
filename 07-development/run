@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# check if command line argument is empty or not present
+if [ -z $1 ]; 
+then
+    echo "No arguement provided to determine to start/stop the container"
+    exit 0
+fi
+
+sudo docker network create development
+
+case "$1" in
+    "down")
+        sudo docker-compose down ;;
+    "up")
+        sudo docker-compose up -d ;;
+esac
+

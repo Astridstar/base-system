@@ -1,0 +1,29 @@
+services:
+  tomcat:
+    image: tomcat:latest
+    container_name: tomcat
+    labels:
+      - "tier=app"
+      - "type=dev"
+    ports:
+      - "${EXPOSED_PORT-default}:8080"
+    volumes:
+      - type: bind
+        source: "${HOST_STORAGE_BASE_DIR}"
+        target: "${USR_HOME}"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - "CATALINA_BASE:${TOMCAT_DIR}"
+      - "CATALINA_HOME:${TOMCAT_DIR}"
+      - "CATALINA_TMPDIR:${TOMCAT_DIR}/temp"
+      - "JRE_HOME:/usr"
+      - "CLASSPATH:${TOMCAT_DIR}/bin/bootstrap.jar:${TOMCAT_DIR}/bin/tomcat-juli.jar"    
+    networks:
+      - development
+    #   - database    
+
+networks:
+  database:
+    external: true
+  development:
+    external: true
