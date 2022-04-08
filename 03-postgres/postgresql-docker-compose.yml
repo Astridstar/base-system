@@ -1,19 +1,43 @@
 version: "3.4"
 services:
-    postgres_database:
+    postgres:
       image: "postgres:latest"
-      container_name: postgres  #nopcommerce_postgres_server
+      container_name: postgres  
       restart: "always"
       environment:
-        POSTGRES_PASSWORD: "SuperSecret"
+        - "PGDATA:${PGDATA-default}"
+        - "POSTGRES_USER:${POSTGRES_USER-default}"
+        - "POSTGRES_PASSWORD:${POSTGRES_USER-default}"
+      volumes:
+        - type: bind
+          source: ${STORAGE_BASE_DIR}/postgresql/data
+          target: /var/lib/postgressql/data
+      networks:
+        - database
+      labels:
+        - "tier=db"
+        - "com.docker.compose.project=postrgres"
 
     pgadmin:
       image: dpage/pgadmin4
       container_name: pgadmin
       ports:
-        - "6336:80"
+        - "${PGADMIN_PORT}:80"
       environment:
-        - PGADMIN_DEFAULT_EMAIL=user@domain.local
-        - PGADMIN_DEFAULT_PASSWORD=SuperSecret
+        - "PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL-default}"
+        - "PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD-default}"
       depends_on:
-          - postgres_database
+          - postgres
+      volumes:
+        - type: bind
+          source: ${STORAGE_BASE_DIR}/pgadmin
+          target: /var/lib/pgadmin
+      networks:
+        - database
+      labels:
+        - "tier=db"
+        - "com.docker.compose.project=postrgres"
+
+networks:
+  database:
+    external: true
