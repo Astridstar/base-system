@@ -3,6 +3,8 @@
 - elasticsearch
 - kibana
 - postgres database
+- anaconda 
+- portainer
 
 ---
 ## 1. Run proxy as a reverse proxy
@@ -30,3 +32,9 @@ To grab the cert out for other comms
 *Persistency is not there yet*
 
 [Reference](https://towardsdatascience.com/local-development-set-up-of-postgresql-with-docker-c022632f13ea)
+
+## 4. Anaconda
+
+## 5. Portainer
+
+
