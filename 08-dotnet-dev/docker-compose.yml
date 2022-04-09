@@ -1,0 +1,26 @@
+services:
+  dotnets-sdk:
+    image: docker.io/bitnami/dotnet-sdk:6
+    container_name: dotnet-dev
+    labels:
+      - "tier=app"
+      - "type=dev"
+    command: ["tail", "-f", "/dev/null"] # To keep the container running
+    volumes:
+      - dotnet_data:/app
+      - type: bind
+        source: "${HOST_STORAGE_BASE_DIR}"
+        target: "${HOST_DOTNET_DIR}"
+    networks:
+      - development
+    #   - database    
+
+volumes:
+  dotnet_data:
+    driver: local
+
+networks:
+  database:
+    external: true
+  development:
+    external: true
