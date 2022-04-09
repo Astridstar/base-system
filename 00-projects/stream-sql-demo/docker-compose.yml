@@ -10,7 +10,8 @@ volumes:
     driver: local
   kafka_data:
     driver: local 
-
+  hue-data:
+    driver: local
 services:
   # -------------- Job Manager service -------------- 
   jobmanager:
@@ -76,14 +77,98 @@ services:
     networks:
       - stream_sql_demo
 
+  # -------------- Datagen service -------------- 
+  datagen:
+    image: jark/datagen:0.2
+    container_name: datagen
+    command: "java -classpath /opt/datagen/flink-sql-demo.jar myflink.SourceGenerator --input /opt/datagen/user_behavior.log --output kafka kafka:9094 --speedup 2000"
+    depends_on:
+      - kafka
+    environment:
+      ZOOKEEPER_CONNECT: zookeeper
+      KAFKA_BOOTSTRAP: kafka
+    networks:
+      - stream_sql_demo
+
+  # -------------- Datagen service -------------- 
+  mysql:
+    image: jark/mysql-example:0.2
+    container_name: mysql
+    ports:
+      - "13306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_TCP_PORT=13306
+    networks:
+      - stream_sql_demo
+
+  # -------------- Flink SQL service -------------- 
+  flink-sql-api:
+    image: romainr/flink-sql-api:1.11.1
+    container_name: flink-sql-api
+    ports:
+      - "8083:8083"
+    depends_on:
+      - jobmanager
+    networks:
+      - stream_sql_demo
+
+  # -------------- ksqldb-server service -------------- 
+  ksqldb-server:
+    image: confluentinc/ksqldb-server:0.12.0
+    hostname: ksqldb-server
+    container_name: ksqldb-server
+    ports:
+      - "8088:8088"
+    environment:
+      KSQL_LISTENERS: http://0.0.0.0:8088
+      KSQL_BOOTSTRAP_SERVERS: kafka:9094
+      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
+      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
+    networks:
+      - stream_sql_demo
+
+  # -------------- ksqldb-cli service -------------- 
+  ksqldb-cli:
+    image: confluentinc/ksqldb-cli:0.12.0
+    container_name: ksqldb-cli
+    depends_on:
+      - ksqldb-server
+    entrypoint: /bin/sh
+    tty: true
+    networks:
+      - stream_sql_demo
 
 
+  # -------------- Hue service -------------- 
+  hue:
+    image: romainr/hue:demo-streams-v3
+    hostname: hue
+    container_name: hue
+    ports:
+      - "8888:8888"
+    depends_on:
+      - hue-database
+    command: ["./wait-for-it.sh", "hue-database:3306", "--", "./startup.sh"]
+    networks:
+      - stream_sql_demo
 
 
-
-# -------------- XXXX service -------------- 
-
-
-
+# -------------- Hue database service -------------- 
+  hue-database:
+    image: mysql:5.7
+    container_name: hue-database
+    ports:
+      - "33061:3306"
+    volumes:
+      - ./hue-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_USER: hue
+      MYSQL_PASSWORD: secret
+      MYSQL_DATABASE: hue
+    networks:
+      - stream_sql_demo
 
 
