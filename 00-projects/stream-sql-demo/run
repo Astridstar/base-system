@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# check if command line argument is empty or not present
+if [ -z $1 ]; 
+then
+    echo "No arguement provided to determine to start/stop the container"
+    exit 0
+fi
+
+sudo docker network create stream-sql-demo
+
+case "$1" in
+    "down")
+        sudo docker-compose down ;;
+    "up")
+        sudo docker-compose up -d ;;
+esac
+
+# To check if broker is up and running
+#in zookeeper console, run /opt/bitnami/zookeeper/bin/zkCli.sh
+# [zk: localhost:2181(CONNECTED) 0] > ls /brokers/ids
+# [zk: localhost:2181(CONNECTED) 0] > ls /brokers/topics
+
+# To create topics in broker, from kafka container console
+# /opt/bitnami/kafka/bin/kafka-topics.sh \
+#   --create --topic "user_behavior" \
+#   --replication-factor 1 \
+#   --partitions 1 \
+#   --bootstrap-server kafka:9092"
