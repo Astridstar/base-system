@@ -1,5 +1,15 @@
 version: '3'
 
+networks:
+  elastic:
+    external: true
+
+volumes:
+  esdata01:
+    driver: local
+  kibanadata:
+    driver: local
+
 services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
@@ -39,16 +49,5 @@ services:
       - xpack.encryptedSavedObjects.encryptionKey=12a4c52a17ca1bf704c9b3c0484a2674
       - xpack.reporting.encryptionKey=e219b4041e0d4c05c75ea86056da8306
       - xpack.security.encryptionKey=d28814bcf1e6c7a2a3cb5b281f84d23f
-
-networks:
-  elastic:
-    external: true
-
-volumes:
-  esdata01:
-    driver: local
-  kibanadata:
-    driver: local
-
 
 

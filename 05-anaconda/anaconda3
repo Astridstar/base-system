@@ -6,7 +6,7 @@ PATH_GIT_REPO=/repo
 
 HOST_DATASET_PATH=${HOME}/Projects/work/datasets
 
-sudo docker run -it --name anaconda --mount type=bind,source=${HOST_DATASET_PATH},target=${PATH_DATASET} -p 8888:8888 continuumio/anaconda3:2021.11 \
+docker run -it --name anaconda --mount type=bind,source=${HOST_DATASET_PATH},target=${PATH_DATASET} -p 8888:8888 continuumio/anaconda3:2021.11 \
     /bin/bash -c "
         conda install jupyter -y --quiet && \
         mkdir -p ${PATH_NOTEBOOK} && \
