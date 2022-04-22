@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# check if command line argument is empty or not present
+if [ -z $1 ]; 
+then
+    echo "No arguement provided to determine to start/stop the container"
+    exit 0
+fi
+
+case "$1" in
+    "down")
+        sudo docker-compose down 
+        sudo docker network remove flink_demo 
+        ;;
+    "up")
+        
+        sudo docker network create flink_demo
+        sudo docker-compose up -d 
+        ;;
+    "es")
+        sudo docker network create elastic
+        sudo docker pull docker.elastic.co/elasticsearch/elasticsearch:8.1.2
+        sudo docker run -e ES_JAVA_OPTS="-Xms1g -Xmx1g" --name es-node01 --net elastic -p 9200:9200 -p 9300:9300 -it docker.elastic.co/elasticsearch/elasticsearch:8.1.2 
+        ;;
+    "kib")
+        sudo docker network create elastic
+        sudo docker pull docker.elastic.co/kibana/kibana:8.1.2
+        sudo docker run --name kib-01 --net elastic -p 5601:5601 docker.elastic.co/kibana/kibana:8.1.2 
+        ;;
+esac
+
+# To check if broker is up and running
+#in zookeeper console, run /opt/bitnami/zookeeper/bin/zkCli.sh
+# [zk: localhost:2181(CONNECTED) 0] > ls /brokers/ids
+# [zk: localhost:2181(CONNECTED) 0] > ls /brokers/topics
+
+# To create topics in broker, from kafka container console
+# /opt/bitnami/kafka/bin/kafka-topics.sh \
+#   --create --topic "user_behavior" \
+#   --replication-factor 1 \
+#   --partitions 1 \
+#   --bootstrap-server kafka:9092"
+
+# curl  -u "elastic:$PASSWORD" -k -v -XGET -H 'Content-Type: application/json'  "https://localhost:9200/_nodes/state?pretty" 
+# curl -s -X POST --cacert config/certs/ca/ca.crt --capath config/certs/es01 -u elastic:${ELASTIC_PASSWORD} -XGET -H 'Content-Type: application/json'  "https://localhost:9200/_nodes/state?pretty" 
+
+# docker exec -it es-node01 /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
+# docker exec -it es-node01 /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana

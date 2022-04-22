@@ -1,0 +1,72 @@
+version: "3.9"
+
+# -------------- Networks -------------- 
+networks:
+  flink_demo:
+    external: true
+
+# -------------- Volumes -------------- 
+volumes:
+  kibana_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+
+services:
+  # -------------- Elasticsearch service -------------- 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - flink_demo
+    ports:
+      - ${ES_PORT}:9200
+      - "9300:9300"
+    mem_limit: ${MEM_LIMIT}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    environment:
+      - node.name=es01
+      - cluster.name=${CLUSTER_NAME}
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - bootstrap.memory_lock=true
+      #- ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      # Multi-node cluster config
+      # - cluster.initial_master_nodes=es01,es02,es03
+      # - discovery.seed_hosts=es02,es03
+      # - xpack.security.enabled=true
+      # - xpack.security.http.ssl.enabled=true
+      # - xpack.security.http.ssl.key=certs/es01/es01.key
+      # - xpack.security.http.ssl.certificate=certs/es01/es01.crt
+      # - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
+      # - xpack.security.http.ssl.verification_mode=certificate
+      # - xpack.security.transport.ssl.enabled=true
+      # - xpack.security.transport.ssl.key=certs/es01/es01.key
+      # - xpack.security.transport.ssl.certificate=certs/es01/es01.crt
+      # - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+      # - xpack.security.transport.ssl.verification_mode=certificate
+      # - xpack.license.self_generated.type=${LICENSE}
+
+  # -------------- kibana service -------------- 
+  kibana:
+    depends_on:
+      - elasticsearch
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    ports:
+      - "5601:5601"
+    volumes:
+    #   - ./kibana.yml:/usr/share/kibana/config/kibana.yml
+      # - certs:/usr/share/kibana/config/certs
+      - kibana_data:/usr/share/kibana/data
+    networks:
+      - flink_demo
+    environment:
+      - SERVERNAME=kibana
+      - ELASTICSEARCH_HOSTS=https://es01:9200

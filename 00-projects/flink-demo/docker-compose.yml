@@ -1,17 +1,26 @@
-version: '2.1'
+version: "3.9"
+
+# -------------- Networks -------------- 
+networks:
+  flink_demo:
+    external: true
+
+# -------------- Volumes -------------- 
+volumes:
+  zookeeper_data:
+    driver: local
+  kafka_data:
+    driver: local 
+  hue_data:
+    driver: local
+  kibana_data:
+    driver: local
+
+  elasticsearch_data:
+    driver: local
+
 services:
-  sql-client:
-    image: jark/demo-sql-client:0.2
-    depends_on:
-      - kafka
-      - jobmanager
-      - elasticsearch
-    environment:
-      FLINK_JOBMANAGER_HOST: jobmanager
-      ZOOKEEPER_CONNECT: zookeeper
-      KAFKA_BOOTSTRAP: kafka
-      MYSQL_HOST: mysql
-      ES_HOST: elasticsearch
+  # -------------- Job Manager service -------------- 
   jobmanager:
     image: flink:1.11.0-scala_2.11
     ports:
@@ -21,6 +30,10 @@ services:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
+    networks:
+      - flink_demo
+
+  # -------------- Task manager service -------------- 
   taskmanager:
     image: flink:1.11.0-scala_2.11
     depends_on:
@@ -31,6 +44,43 @@ services:
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
         taskmanager.numberOfTaskSlots: 10
+    networks:
+      - flink_demo
+
+  # -------------- zookeeper service -------------- 
+  zookeeper:
+    image: docker.io/bitnami/zookeeper:3.8
+    ports:
+      - "2181:2181"
+    volumes:
+      - "zookeeper_data:/bitnami"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - flink_demo
+
+  # -------------- kafka service -------------- 
+  kafka:
+    image: docker.io/bitnami/kafka:3.1
+    ports:
+      - "9092:9092"
+      - "9094:9094"
+    volumes:
+      - "kafka_data:/bitnami"
+    environment:
+      - KAFKA_ADVERTISED_LISTENERS=INSIDE://:9094,OUTSIDE://localhost:9092
+      - KAFKA_LISTENERS=INSIDE://:9094,OUTSIDE://:9092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INSIDE
+      - KAFKA_CREATE_TOPICS="user_behavior:1:1"
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+    networks:
+      - flink_demo
+
+  # -------------- Datagen service -------------- 
   datagen:
     image: jark/datagen:0.2
     command: "java -classpath /opt/datagen/flink-sql-demo.jar myflink.SourceGenerator --input /opt/datagen/user_behavior.log --output kafka kafka:9094 --speedup 2000"
@@ -39,50 +89,81 @@ services:
     environment:
       ZOOKEEPER_CONNECT: zookeeper
       KAFKA_BOOTSTRAP: kafka
+    networks:
+      - flink_demo
+
+  # -------------- Datagen service -------------- 
   mysql:
     image: jark/mysql-example:0.2
     ports:
       - "3306:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=123456
-  zookeeper:
-    image: wurstmeister/zookeeper:3.4.6
+    networks:
+      - flink_demo
+
+  # -------------- Flink SQL service -------------- 
+  flink-sql-api:
+    image: romainr/flink-sql-api:1.11.1
     ports:
-      - "2181:2181"
-  kafka:
-    image: wurstmeister/kafka:2.12-2.2.1
-    ports:
-      - "9092:9092"
-      - "9094:9094"
+      - "8083:8083"
     depends_on:
-      - zookeeper
+      - jobmanager
+    networks:
+      - flink_demo
+
+  # -------------- ksqldb-server service -------------- 
+  ksqldb-server:
+    image: confluentinc/ksqldb-server:0.12.0
+    hostname: ksqldb-server
+    ports:
+      - "8088:8088"
     environment:
-      - KAFKA_ADVERTISED_LISTENERS=INSIDE://:9094,OUTSIDE://localhost:9092
-      - KAFKA_LISTENERS=INSIDE://:9094,OUTSIDE://:9092
-      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
-      - KAFKA_INTER_BROKER_LISTENER_NAME=INSIDE
-      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_CREATE_TOPICS="user_behavior:1:1"
+      KSQL_LISTENERS: http://0.0.0.0:8088
+      KSQL_BOOTSTRAP_SERVERS: kafka:9094
+      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
+      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
+    networks:
+      - flink_demo
+
+  # -------------- ksqldb-cli service -------------- 
+  ksqldb-cli:
+    image: confluentinc/ksqldb-cli:0.12.0
+    depends_on:
+      - ksqldb-server
+    entrypoint: /bin/sh
+    tty: true
+    networks:
+      - flink_demo
+
+
+  # -------------- Hue service -------------- 
+  hue:
+    image: romainr/hue:demo-streams-v3
+    hostname: hue
+    ports:
+      - "8888:8888"
+    depends_on:
+      - hue-database
+    command: ["./wait-for-it.sh", "hue-database:3306", "--", "./startup.sh"]
+    networks:
+      - flink_demo
+
+
+# -------------- Hue database service -------------- 
+  hue-database:
+    image: mysql:5.7
+    ports:
+      - "33061:3306"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
+      - ./hue_data:/var/lib/mysql
     environment:
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - discovery.type=single-node
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.6.0
-    ports:
-      - "5601:5601"
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_USER: hue
+      MYSQL_PASSWORD: secret
+      MYSQL_DATABASE: hue
+    networks:
+      - flink_demo
+
+
