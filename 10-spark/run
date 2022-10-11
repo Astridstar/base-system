@@ -1,0 +1,18 @@
+#!/bin/bash
+
+while getopts ":udh" option; do
+   case $option in
+      h) # display Help
+        echo "./run -u(p) -d(own) -h(elp)"
+        exit;;
+      u) # destroy 
+        sudo docker-compose up -d --scale spark-worker=2
+        exit;;
+      d) # init 
+        sudo docker-compose down
+        exit;;   
+     \?) # Invalid option
+         echo "Error: Invalid option"
+         exit;;           
+    esac
+done
