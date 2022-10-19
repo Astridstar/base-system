@@ -1,0 +1,27 @@
+#!/bin/bash
+
+
+echo "---------------------"
+echo " Resource Group Name " 
+echo "---------------------"
+echo $(terraform output resource_group_name)
+echo
+echo "---------------------"
+echo " Get kube_config     " 
+echo "---------------------"
+echo "$(terraform output kube_config)" > ./azurek8s
+echo
+echo "---------------------"
+echo " View kube_config     " 
+echo "---------------------"
+cat ./azurek8s
+echo
+echo "---------------------"
+echo " Check nodes     " 
+echo "---------------------"
+echo export KUBECONFIG=./azurek8s
+kubectl get nodes
+echo
+
+
+

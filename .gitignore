@@ -1,3 +1,7 @@
 */*/*.crt
 
 */local_data
+
+*/.env
+*/constant.auto.tfvars
+
