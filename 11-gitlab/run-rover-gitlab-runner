@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# environment parameters required
+#GITLAB_HOME=$HOME/srv/gitlab
+
+# to grab from vault gitlab's token (AGENT_TOKEN)
+#MSI_ID=
+#AGENT_KEYVAULT_SECRET=
+#AGENT_KEYVAULT_NAME=
+
+# if hardcoding AGENT_TOKEN then comment the above 3 variables and enable the one below
+#AGENT_TOKEN=
+
+#GITLAB SERVER URL
+#AGENT_URL=http://10.0.0.4
+
+#GITLAB RUNNER LABEL
+#AGENT_NAME=rover-runner
+
+sudo docker run --rm -it --name rover-runner --env-file ./.env -v rover-gitlab-runner-config:/etc/gitlab-runner aztfmod/rover-agent:1.3.4-2211.2307-gitlab register
+
