@@ -8,7 +8,7 @@ gitlab-runner register \
   --docker-image alpine:latest \
   --description "docker-runner" \
   --maintenance-note "Free-form maintainer notes about this runner" \
-  --tag-list "docker" \
+  --tag-list "docker,${3}" \
   --run-untagged="true" \
   --locked="false" \
   --access-level="not_protected"

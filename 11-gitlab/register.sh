@@ -1,13 +1,14 @@
 #!/bin/bash
 
+# Arguements list: <container name> <hostname> <registration_token>
 if (($# < 1)) 
 then
     echo "Number of arguements should be at least 2, getting " 
 fi
 
-REGISTRATION_TOKEN=${GITLAB_RUNNER_REGISTRATION_TOKEN}
+yaml_file=run-${1}-compose.yml
 
-cat <<EOF > register-compose.yml
+cat <<EOF > $yaml_file
 version: '3.6'
 services:
   runner:
@@ -16,30 +17,13 @@ services:
     restart: always
     hostname: '10.0.0.7'
     environment:
-      REGISTRATION_TOKEN: $REGISTRATION_TOKEN   
+      REGISTRATION_TOKEN: $GITLAB_RUNNER_REGISTRATION_TOKEN   
     entrypoint: |
-        sh -c "/scripts/register-runners.sh http://10.0.0.7 $REGISTRATION_TOKEN" 
+        sh -c "/scripts/register-runners.sh http://10.0.0.7 $GITLAB_RUNNER_REGISTRATION_TOKEN ${1}" 
     volumes:
       - '$GITLAB_HOME/gitlab-runner/config:/etc/gitlab-runner'
+      - /var/run/docker.sock:/var/run/docker.sock 
       - ./scripts:/scripts
 EOF
 
-sudo docker compose -f register-compose.yml up -d
-
-# version: '3.6'
-# services:
-#   runner:
-#     image: 'gitlab/gitlab-runner:latest'
-#     container_name: ${1}
-#     restart: always
-#     hostname: '10.0.0.7'
-#     # env_file:
-#     #   - .env    
-#     environment:
-#       REGISTRATION_TOKEN: |
-#         $REGISTRATION_TOKEN   
-#     command: |
-#       /bin/bash -c '/scripts/register-runner.sh  \"http://10.0.0.7\" $REGISTRATION_TOKEN'
-#     volumes:
-#       - '$GITLAB_HOME/gitlab-runner/config:/etc/gitlab-runner'
-#       - ./scripts:/scripts
+sudo docker compose -f $yaml_file up -d
