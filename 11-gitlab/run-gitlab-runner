@@ -1,6 +1,6 @@
 sudo docker volume create gitlab-runner-config
 
-sudo docker run -d --name gitlab-runner --restart always \
+sudo docker run -d --name gitlab-runner-1 --restart always \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v gitlab-runner-config:/etc/gitlab-runner \
     gitlab/gitlab-runner:latest
@@ -15,3 +15,18 @@ sudo docker run -d --name gitlab-runner-2 --restart always \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v gitlab-runner-config:/etc/gitlab-runner \
     gitlab/gitlab-runner:latest
+
+sudo docker service create --name gitlab-token --secret my_secret_data gitlab/gitlab-runner:latest
+
+sudo gitlab-runner register \
+  --non-interactive \
+  --url "https://gitlab.com/" \
+  --registration-token "PROJECT_REGISTRATION_TOKEN" \
+  --executor "docker" \
+  --docker-image alpine:latest \
+  --description "docker-runner" \
+  --maintenance-note "Free-form maintainer notes about this runner" \
+  --tag-list "docker,aws" \
+  --run-untagged="true" \
+  --locked="false" \
+  --access-level="not_protected"

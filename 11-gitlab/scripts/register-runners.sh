@@ -2,8 +2,8 @@
 
 gitlab-runner register \
   --non-interactive \
-  --url "${GITLAB_URL}" \
-  --registration-token $REGISTRATION_TOKEN \
+  --url "${1}" \
+  --registration-token "${2}" \
   --executor "docker" \
   --docker-image alpine:latest \
   --description "docker-runner" \
@@ -12,3 +12,5 @@ gitlab-runner register \
   --run-untagged="true" \
   --locked="false" \
   --access-level="not_protected"
+
+gitlab-runner run  
