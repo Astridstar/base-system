@@ -5,3 +5,5 @@
 */.env
 */constant.auto.tfvars
 
+*/register-compose.yml
+11-gitlab/run*compose.yml
