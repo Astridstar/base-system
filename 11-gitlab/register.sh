@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# Arguements list: <container name> <hostname> <registration_token>
+# Arguements list: <container name> <external_url> <registration_token>
+# Example: ./register.sh runner-7 10.0.0.7 xxxxxxxxxxx
+
 if (($# < 1)) 
 then
     echo "Number of arguements should be at least 2, getting " 
@@ -15,11 +17,11 @@ services:
     image: 'gitlab/gitlab-runner:latest'
     container_name: ${1}
     restart: always
-    hostname: '10.0.0.7'
+    hostname: '${2}'
     environment:
-      REGISTRATION_TOKEN: $GITLAB_RUNNER_REGISTRATION_TOKEN   
+      REGISTRATION_TOKEN: ${3}   
     entrypoint: |
-        sh -c "/scripts/register-runners.sh http://10.0.0.7 $GITLAB_RUNNER_REGISTRATION_TOKEN ${1}" 
+        sh -c "/scripts/register-runners.sh http://${2} ${3} ${1}" 
     volumes:
       - '$GITLAB_HOME/gitlab-runner/config:/etc/gitlab-runner'
       - /var/run/docker.sock:/var/run/docker.sock 
