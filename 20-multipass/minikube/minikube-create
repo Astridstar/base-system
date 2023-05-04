@@ -1,0 +1,1 @@
+multipass launch minikube -n minikube -c 4 -m 8G --disk 50G

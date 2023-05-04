@@ -1,0 +1,16 @@
+helm repo add portainer https://portainer.github.io/k8s/
+helm repo update
+
+helm upgrade --install --create-namespace -n portainer portainer portainer/portainer \
+    --set service.type=ClusterIP \
+    --set tls.force=false \
+    --set ingress.enabled=true \
+    --set ingress.ingressClassName=traefik \
+    --set ingress.annotations."traefik\.ingress\.kubernetes\.io/backend-protocol"=HTTP \
+    --set ingress.annotations."traefik\.ingress\.kubernetes\.io/router\.entrypoints"=web \
+    --set ingress.hosts[0].paths[0].path="/"
+
+#--set ingress.annotations."traefik\.ingress\.kubernetes\.io/router\.entrypoints"="web" \
+#--set ingress.annotations."traefik\.ingress\.kubernetes\.io/router\.tls"="false"
+#--set ingress.hosts[0].paths[0].path="/cluster"
+#--set ingress.hosts[0].host=mini.cluster.com \

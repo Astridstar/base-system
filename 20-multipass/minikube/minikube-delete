@@ -1,0 +1,4 @@
+multipass list
+multipass stop minikube
+multipass delete minikube
+multipass purge

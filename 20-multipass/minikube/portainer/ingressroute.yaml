@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    meta.helm.sh/release-name: portainer
+    meta.helm.sh/release-namespace: portainer
+    traefik.ingress.kubernetes.io/backend-protocol: HTTP
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+    traefik.ingress.kubernetes.io/router.tls: "false"     
+  labels:
+    app.kubernetes.io/instance: portainer
+  name: whoami-portainer
+  namespace: portainer
+spec:
+  ingressClassName: traefik
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: portainer
+            port:
+              number: 9000
+        path: /
+        pathType: Prefix
