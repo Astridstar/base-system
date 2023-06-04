@@ -1,0 +1,56 @@
+#!/bin/bash
+
+#docker pull owasp/zap2docker-stable
+
+BASELINE_DIR=$(pwd)/baseline
+BASELINE_RPT=baseline-report.md
+echo "Basline:" $BASELINE_DIR/$BASELINE_RPT
+
+if [ ! -d $BASELINE_DIR ]; then
+    mkdir $$BASELINE_DIR
+fi
+
+if test -f $BASELINE_DIR/$BASELINE_RPT; then
+    rm  $BASELINE_DIR/$BASELINE_RPT
+fi 
+
+echo
+echo
+echo "--------------------------"
+echo "Running baseline scan now"
+echo "--------------------------"
+
+docker run -v $BASELINE_DIR:/zap/wrk/:rw \
+    owasp/zap2docker-stable zap-baseline.py \
+    -t http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1):8080/WebGoat \
+    -a -d  -w $BASELINE_RPT -z "-silent" -l "PASS"
+
+echo
+echo
+echo "---------------------"
+echo "Running full scan now"
+echo "---------------------"
+
+FULLSCAN_DIR=$(pwd)/full
+FULLSCAN_RPT=fullscan-report.md
+echo "Fullscan:"  $FULLSCAN_DIR/$FULLSCAN_RPT
+
+if [ ! -d $FULLSCAN_DIR ]; then
+    mkdir $FULLSCAN_DIR
+fi
+
+if test -f $FULLSCAN_DIR/$FULLSCAN_RPT; then
+    rm  $FULLSCAN_DIR/$FULLSCAN_RPT
+fi
+
+docker run -v $FULLSCAN_DIR:/zap/wrk/:rw \
+    owasp/zap2docker-stable zap-full-scan.py \
+    -t http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1):8080/WebGoat \
+    -a -d -w $FULLSCAN_RPT  -z "-silent" -l "PASS"
+   
+echo "--------------------------------"
+echo "Scans completed, cleaning up now"
+echo "--------------------------------"
+docker container prune -f
+docker volume prune -f
+

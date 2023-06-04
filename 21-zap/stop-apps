@@ -1,4 +1,9 @@
 #!/bin/bash
 
 docker stop webgoat
+docker remove webgoat
+
 docker stop petstore
+docker remove petstore
+
+docker container prune

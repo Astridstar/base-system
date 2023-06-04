@@ -1,0 +1,82 @@
+#!/bin/bash
+
+#docker pull webgoat/webgoat
+docker run -it -d --name webgoat \
+    -p 8080:8080 \
+    -p 9090:9090 \
+    webgoat/webgoat 
+
+# docker pull swaggerapi/petstore3:unstable
+# docker run --name petstore \
+#     -d -p 8080:8080 \
+#     swaggerapi/petstore3:unstable
+
+
+# https://petstore.swagger.io/v2/swagger.json
+
+#docker run -u zap -p 8080:8080 -p 8090:8090 -i owasp/zap2docker-stable zap-webswing.sh
+#!/bin/bash
+
+#docker pull owasp/zap2docker-stable
+
+BASELINE_DIR=$(pwd)/baseline
+BASELINE_RPT=baseline-report.md
+echo "Basline:" $BASELINE_DIR/$BASELINE_RPT
+
+if [ ! -d $BASELINE_DIR ]; then
+    mkdir $$BASELINE_DIR
+fi
+
+if test -f $BASELINE_DIR/$BASELINE_RPT; then
+    rm  $BASELINE_DIR/$BASELINE_RPT
+fi 
+
+echo
+echo
+echo "--------------------------"
+echo "Running baseline scan now"
+echo "--------------------------"
+
+docker run -v $BASELINE_DIR:/zap/wrk/:rw \
+    owasp/zap2docker-stable zap-baseline.py \
+    -t http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1):8080/WebGoat \
+    -a -d  -w $BASELINE_RPT -z "-silent" -l "PASS"
+
+echo
+echo
+echo "---------------------"
+echo "Running full scan now"
+echo "---------------------"
+
+FULLSCAN_DIR=$(pwd)/full
+FULLSCAN_RPT=fullscan-report.md
+echo "Fullscan:"  $FULLSCAN_DIR/$FULLSCAN_RPT
+
+if [ ! -d $FULLSCAN_DIR ]; then
+    mkdir $FULLSCAN_DIR
+fi
+
+if test -f $FULLSCAN_DIR/$FULLSCAN_RPT; then
+    rm  $FULLSCAN_DIR/$FULLSCAN_RPT
+fi
+
+docker run -v $FULLSCAN_DIR:/zap/wrk/:rw \
+    owasp/zap2docker-stable zap-full-scan.py \
+    -t http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1):8080/WebGoat \
+    -a -d -w $FULLSCAN_RPT  -z "-silent" -l "PASS"
+   
+echo "--------------------------------"
+echo "Scans completed, cleaning up now"
+echo "--------------------------------"
+docker container prune -f
+docker volume prune -f
+
+#!/bin/bash
+
+docker stop webgoat
+docker remove webgoat
+
+docker stop petstore
+docker remove petstore
+
+docker container prune

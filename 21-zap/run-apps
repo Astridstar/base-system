@@ -1,16 +1,17 @@
 #!/bin/bash
 
-docker pull webgoat/webgoat
+#docker pull webgoat/webgoat
 docker run -it -d --name webgoat \
-    -p 9080:8080 \
+    -p 8080:8080 \
     -p 9090:9090 \
     webgoat/webgoat 
 
-docker pull swaggerapi/petstore3:unstable
-docker run --name petstore3 \
-    -d -p 8080:8080 \
-    swaggerapi/petstore3:unstable
+# docker pull swaggerapi/petstore3:unstable
+# docker run --name petstore \
+#     -d -p 8080:8080 \
+#     swaggerapi/petstore3:unstable
 
 
 # https://petstore.swagger.io/v2/swagger.json
 
+#docker run -u zap -p 8080:8080 -p 8090:8090 -i owasp/zap2docker-stable zap-webswing.sh
