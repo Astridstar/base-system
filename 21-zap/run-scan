@@ -1,0 +1,5 @@
+#!/bin/bash
+
+docker pull owasp/zap2docker-stable
+
+docker run -v $(pwd)/baseline:/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py 
