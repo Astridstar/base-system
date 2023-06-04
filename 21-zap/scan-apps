@@ -47,7 +47,32 @@ docker run -v $FULLSCAN_DIR:/zap/wrk/:rw \
     owasp/zap2docker-stable zap-full-scan.py \
     -t http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1):8080/WebGoat \
     -a -d -w $FULLSCAN_RPT  -z "-silent" -l "PASS"
-   
+
+
+echo
+echo
+echo "---------------------"
+echo "Running API scan now"
+echo "---------------------"
+
+APISCAN_DIR=$(pwd)/api
+APISCAN_RPT=apiscan-report.md
+echo "APIscan:"  $APISCAN_DIR/$APISCAN_RPT
+
+if [ ! -d $APISCAN_DIR ]; then
+    mkdir $APISCAN_DIR
+fi
+
+if test -f $APISCAN_DIR/$APISCAN_RPT; then
+    rm  $APISCAN_DIR/$APISCAN_RPT
+fi
+
+docker run -v $APISCAN_DIR:/zap/wrk/:rw \
+    owasp/zap2docker-stable zap-api-scan.py \
+    -t http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1):8080/WebGoat \
+    -a -d -w $APISCAN_RPT  -z "-silent" -f openapi
+  
+
 echo "--------------------------------"
 echo "Scans completed, cleaning up now"
 echo "--------------------------------"
