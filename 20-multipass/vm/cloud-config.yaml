@@ -1,57 +1,20 @@
-#cloud-config
+groups:
+  - docker
+
 users:
   - default
   - name: ubuntu
     gecos: Ubuntu
     sudo: ALL=(ALL) NOPASSWD:ALL
-    groups: users, admin
+    groups: users, admin, docker
     shell: /bin/bash
     ssh_import_id: None
     lock_passwd: true
     ssh_authorized_keys:
-      - <SSH public key from macOS>
-
+      - <ssh-public-keys>
 package_update: true
 package_upgrade: true
 packages:
-  - avahi-daemon
-  - git
-#  - package_2
-#  - [package_3, version_num]
-write_files:
-  - content: |
-    # custom
-    alias update='sudo apt update && sudo apt upgrade && sudo apt dist-upgrade && sudo apt autoremove && sudo apt auto-clean'
-    path: /etc/skel/.bashrc
-    append: true
-# -------------------------------------
-# ssh_keys:
-#   rsa_private: |
-#     -----BEGIN RSA PRIVATE KEY-----
-#     your_rsa_private_key
-#     -----END RSA PRIVATE KEY-----
+  - [ca-certificates, curl, gnupg, git, avahi-daemon]
 
-#   rsa_public: your_rsa_public_key      
-# -------------------------------------
-# ca-certs:
-#   remove-defaults: true
-#   trusted:
-#     - |
-#       -----BEGIN CERTIFICATE-----
-#       your_CA_cert
-#       -----END CERTIFICATE-----
-# -------------------------------------
-# manage-resolv-conf: true
-# resolv_conf:
-#   nameservers:
-#     - 'first_nameserver'
-#     - 'second_nameserver'
-#   searchdomains:
-#     - first.domain.com
-#     - second.domain.com
-#   domain: domain.com
-#   options:
-#     option1: value1
-#     option2: value2
-#     option3: value3
-# -------------------------------------
+
