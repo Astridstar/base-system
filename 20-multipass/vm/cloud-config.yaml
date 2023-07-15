@@ -11,10 +11,12 @@ users:
     ssh_import_id: None
     lock_passwd: true
     ssh_authorized_keys:
-      - <ssh-public-keys>
+      - <ssh-public-key>
 package_update: true
 package_upgrade: true
 packages:
-  - [ca-certificates, curl, gnupg, git, avahi-daemon]
-
-
+  - [avahi-daemon, apt-transport-https, ca-certificates, curl, gnupg, lsb-release, git, uidmap, dbus-user-session]
+runcmd:
+  - sudo curl -fsSL https://get.docker.com | sudo /bin/bash
+  - sudo systemctl enable docker.service
+  - sudo systemctl enable containerd.service
