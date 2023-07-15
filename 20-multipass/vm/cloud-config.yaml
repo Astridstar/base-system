@@ -12,11 +12,34 @@ users:
     lock_passwd: true
     ssh_authorized_keys:
       - <ssh-public-key>
+
 package_update: true
 package_upgrade: true
 packages:
-  - [avahi-daemon, apt-transport-https, ca-certificates, curl, gnupg, lsb-release, git, uidmap, dbus-user-session]
+  - avahi-daemon
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+  - git
+  - uidmap
+  - dbus-user-session
+  - dpkg-dev
+
 runcmd:
   - sudo curl -fsSL https://get.docker.com | sudo /bin/bash
   - sudo systemctl enable docker.service
   - sudo systemctl enable containerd.service
+  - snap install kubectl --classic
+  - wget https://storage.googleapis.com/minikube/releases/latest/minikube_latest_$( dpkg-architecture -q DEB_HOST_ARCH ).deb
+  - sudo apt update
+  - sudo apt upgrade
+  - apt-get install --yes --no-install-recommends -o Debug::pkgProblemResolver=yes ./minikube_latest_$( dpkg-architecture -q DEB_HOST_ARCH ).deb
+  - sudo -u ubuntu minikube start --driver=docker
+  
+  # - sudo chmod +x setup*.sh
+  # - sudo chown $(whoami):$(id -gn) setup*.sh
+  # - $(HOME)/shared_dir/setup-docker.sh
+  # - $(HOME)/shared_dir/setup-minikube.sh
+  
