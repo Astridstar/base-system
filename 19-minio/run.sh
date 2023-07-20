@@ -6,10 +6,17 @@ MINIO_ROOT_PASSWORD=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-8})
 MINIO_PORT="9010"
 
 # Start the container
+# sudo docker run -it -d --rm \
+#    -v ~/.minio-data/:/data \
+#    --name minio-local \
+#    -p ${MINIO_PORT}:${MINIO_PORT} \
+#    -e MINIO_ROOT_USER=${MINIO_ROOT_USER} \
+#    -e  MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD} \
+#    minio/minio  server /data --address :${MINIO_PORT}
 sudo docker run -it -d --rm \
    -v ~/.minio-data/:/data \
    --name minio-local \
-   -p ${MINIO_PORT}:${MINIO_PORT} \
+   -p ${MINIO_PORT}:9000 \
    -e MINIO_ROOT_USER=${MINIO_ROOT_USER} \
    -e  MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD} \
    minio/minio  server /data --address :${MINIO_PORT}

@@ -11,3 +11,5 @@
 21-zap/api/*
 21-zap/baseline/*
 21-zap/full/*
+
+.DS_Store
