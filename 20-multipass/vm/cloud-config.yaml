@@ -53,7 +53,11 @@ runcmd:
       -v /var/run/docker.sock:/var/run/docker.sock \
       -v portainer_data:/data \
       portainer/portainer-ce  
-  
+  - |
+    curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+    chmod 700 get_helm.sh
+    ./get_helm.sh
+    
   # - sudo chmod +x setup*.sh
   # - sudo chown $(whoami):$(id -gn) setup*.sh
   # - $(HOME)/shared_dir/setup-docker.sh

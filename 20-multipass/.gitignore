@@ -1,0 +1,5 @@
+.DS_Store
+**/.DS_Store
+
+**/devops/scripts/*.log
+**/devops/scripts/*.out

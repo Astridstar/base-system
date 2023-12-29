@@ -1,0 +1,40 @@
+helm repo add hashicorp https://helm.releases.hashicorp.com
+helm repo update
+helm search repo hashicorp/vault
+
+
+Install the latest version of the Vault Helm chart with Integrated Storage.
+Create a file named helm-vault-raft-values.yml with the following contents:
+
+cat > helm-vault-raft-values.yml <<EOF
+server:
+  affinity: ""
+  ha:
+    enabled: true
+    raft: 
+      enabled: true
+EOF
+
+
+helm install vault hashicorp/vault --values helm-vault-raft-values.yml
+
+kubectl exec vault-0 -- vault operator init \
+    -key-shares=3 \
+    -key-threshold=2 \
+    -format=json > cluster-keys.json
+
+
+VAULT_UNSEAL_KEY_1=$(jq -r ".unseal_keys_b64[0]" cluster-keys.json)
+VAULT_UNSEAL_KEY_2=$(jq -r ".unseal_keys_b64[1]" cluster-keys.json)
+
+kubectl exec vault-0 -- vault operator unseal $VAULT_UNSEAL_KEY_1
+kubectl exec vault-0 -- vault operator unseal $VAULT_UNSEAL_KEY_2
+
+kubectl exec -ti vault-1 -- vault operator raft join http://vault-0.vault-internal:8200
+kubectl exec -ti vault-2 -- vault operator raft join http://vault-0.vault-internal:8200
+
+kubectl exec vault-1 -- vault operator unseal $VAULT_UNSEAL_KEY_1
+kubectl exec vault-1 -- vault operator unseal $VAULT_UNSEAL_KEY_2
+
+kubectl exec vault-2 -- vault operator unseal $VAULT_UNSEAL_KEY_1
+kubectl exec vault-2 -- vault operator unseal $VAULT_UNSEAL_KEY_2

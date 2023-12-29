@@ -1,0 +1,1 @@
+multipass launch -n minikube -c 4 -m 10G --disk 100G --cloud-init ./config.yaml --timeout 600

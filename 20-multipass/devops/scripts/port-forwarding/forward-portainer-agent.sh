@@ -1,0 +1,1 @@
+multipass exec $1 -- minikube kubectl -- port-forward --address 0.0.0.0 -n portainer service/portainer-agent 19001:9001

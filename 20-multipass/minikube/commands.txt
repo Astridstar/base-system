@@ -1,3 +1,9 @@
 kubectl port-forward $(kubectl get pods --selector "app.kubernetes.io/name=traefik" --output=name) 9000:9000
 
 mkk port-forward $(mkk get pods --selector "app.kubernetes.io/name=traefik" -n traefik --output=name) 9000:9000
+
+
+alias mk="multipass exec minikube -- minikube"
+alias mkk="mk kubectl --"
+
+multipass exec minikube -- minikube -- port-forward $(mkk get pods --selector "app.kubernetes.io/name=traefik" -n traefik --output=name) 9000:9000
