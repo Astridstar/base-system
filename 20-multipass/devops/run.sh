@@ -36,7 +36,7 @@ multipass exec $SERVER_NAME -- git config --global user.defaultBranch "$defaultb
 echo
 
 echo ==== Transfer scripts to $SERVER_NAME ====
-multipass transfer -r -p ./scripts/* $SERVER_NAME:$INSTANCE_SCRIPTS_DIR
+sudo multipass transfer -r -p ./scripts $SERVER_NAME:$INSTANCE_SCRIPTS_DIR
 echo
 echo ==== Executing installation scripts on instance ====
 multipass exec $SERVER_NAME -- chmod +x $INSTANCE_SCRIPTS_DIR/install.sh
