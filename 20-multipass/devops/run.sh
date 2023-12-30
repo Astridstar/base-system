@@ -7,10 +7,21 @@ INSTANCE_DATA_DIR=/shared_data
 INSTANCE_SCRIPTS_DIR=/shared_data/scripts
 GITHUB_PAT_DATA=/shared_data/github_pat.txt
 
+CURR_PWD=$( pwd )
+
+if [ -d $HOST_DATA_DIR ] 
+then
+  rm -rf $HOST_DATA_DIR
+fi
+
 if [ ! -d $HOST_DATA_DIR ] 
 then
   mkdir -p $HOST_DATA_DIR
 fi
+
+cp -R scripts $HOST_DATA_DIR
+chmod +x $HOST_DATA_DIR/scripts/install.sh
+chmod +x $HOST_DATA_DIR/scripts/port-forwarding/*.sh
 
 echo ==== Launch $SERVER_NAME instance ====
 multipass launch -n $SERVER_NAME -c 4 -m 16G --disk 300G --cloud-init ./cloud-config-k8s.yaml --timeout 600 --mount $HOST_DATA_DIR:$INSTANCE_DATA_DIR
@@ -35,19 +46,19 @@ multipass exec $SERVER_NAME -- git config --global user.email "$useremail"
 multipass exec $SERVER_NAME -- git config --global user.defaultBranch "$defaultbranch"
 echo
 
-echo ==== Transfer scripts to $SERVER_NAME ====
-sudo multipass transfer -r -p ./scripts $SERVER_NAME:$INSTANCE_SCRIPTS_DIR
-echo
-echo ==== Executing installation scripts on instance ====
-multipass exec $SERVER_NAME -- chmod +x $INSTANCE_SCRIPTS_DIR/install.sh
-multipass exec $SERVER_NAME -- sudo bash -c $INSTANCE_SCRIPTS_DIR/install.sh
-echo
+#echo ==== Executing installation scripts on instance ====
+#multipass exec $SERVER_NAME -- sudo bash -c $INSTANCE_SCRIPTS_DIR/install.sh
+#echo
 
-echo ==== Enabling minikube port-forwarding ====
-cd ./scripts/port-forwarding
-nohup ./forward-portainer-agent.sh $SERVER_NAME & > portainer-agent.sh.log
-nohup ./forward-argocd-ui.sh $SERVER_NAME & > argocd-ui.sh.log
+#echo ==== Enabling minikube port-forwarding ====
+#cd ./scripts/port-forwarding
+#nohup ./forward-portainer-agent.sh $SERVER_NAME & > portainer-agent.sh.log
+#nohup ./forward-argocd-ui.sh $SERVER_NAME & > argocd-ui.sh.log
+
+# Change back to the original path where the script is run
+cd $CURR_PWD
 
 #echo ==== Launching instance shell ====
 #multipass shell $SERVER_NAME
 #echo
+

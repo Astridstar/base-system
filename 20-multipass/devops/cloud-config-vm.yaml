@@ -81,6 +81,6 @@ packages:
 
 runcmd:
 - sudo -u postgres psql <<"__END__"
-  ALTER USER postgres with encrypted password 'P@$$w0rd';
+  ALTER USER postgres with encrypted password 'some_random_admin_passwd'';
   __END__
 

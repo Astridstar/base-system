@@ -1,3 +1,6 @@
+.DS_Store
+**/.DS_Store
+
 */*/*.crt
 
 */local_data
@@ -12,4 +15,6 @@
 21-zap/baseline/*
 21-zap/full/*
 
-.DS_Store
+**/*.log
+**/*.out
+
