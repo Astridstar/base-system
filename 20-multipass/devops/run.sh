@@ -19,7 +19,7 @@ then
   mkdir -p $HOST_DATA_DIR
 fi
 
-cp -R scripts $HOST_DATA_DIR
+cp -R ./scripts $HOST_DATA_DIR
 chmod +x $HOST_DATA_DIR/scripts/install.sh
 chmod +x $HOST_DATA_DIR/scripts/port-forwarding/*.sh
 
@@ -27,11 +27,6 @@ echo ==== Launch $SERVER_NAME instance ====
 multipass launch -n $SERVER_NAME -c 4 -m 16G --disk 300G --cloud-init ./cloud-config-k8s.yaml --timeout 600 --mount $HOST_DATA_DIR:$INSTANCE_DATA_DIR
 
 echo ==== Setting up Github pat ====
-multipass exec -n $SERVER_NAME -- sudo bash -c "cat << EOF >> $GITHUB_PAT_DATA
-echo $GITHUB_PAT | base64 
-EOF"
-
-echo ==== Setting up instance name ====
 multipass exec -n $SERVER_NAME -- sudo bash -c "cat << EOF >> $GITHUB_PAT_DATA
 echo $GITHUB_PAT | base64 
 EOF"
@@ -46,9 +41,9 @@ multipass exec $SERVER_NAME -- git config --global user.email "$useremail"
 multipass exec $SERVER_NAME -- git config --global user.defaultBranch "$defaultbranch"
 echo
 
-#echo ==== Executing installation scripts on instance ====
-#multipass exec $SERVER_NAME -- sudo bash -c $INSTANCE_SCRIPTS_DIR/install.sh
-#echo
+echo ==== Executing installation scripts on instance ====
+multipass exec $SERVER_NAME -- sudo bash -c $INSTANCE_SCRIPTS_DIR/install.sh
+echo
 
 #echo ==== Enabling minikube port-forwarding ====
 #cd ./scripts/port-forwarding
