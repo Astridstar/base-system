@@ -1,0 +1,7 @@
+
+docker run -it -p 9080:80 \
+  -e OPENPROJECT_SECRET_KEY_BASE=secret \
+  -e OPENPROJECT_HOST_NAME=openproject.shadowclan.org:9080 \
+  -e OPENPROJECT_HTTPS=false \
+  -e OPENPROJECT_DEFAULT__LANGUAGE=en \
+  openproject/openproject:14
