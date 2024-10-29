@@ -1,7 +1,10 @@
+sudo mkdir -p /var/lib/storage/docker/openproject/{pgdata,assets}
 
-docker run -it -p 9080:80 \
+docker run -d -p 9118:80 --name openproject \
   -e OPENPROJECT_SECRET_KEY_BASE=secret \
-  -e OPENPROJECT_HOST_NAME=openproject.shadowclan.org:9080 \
+  -e OPENPROJECT_HOST_NAME=local.shadowclan.org:9118 \
   -e OPENPROJECT_HTTPS=false \
   -e OPENPROJECT_DEFAULT__LANGUAGE=en \
+  -v /var/lib/openproject/pgdata:/var/openproject/pgdata \
+  -v /var/lib/openproject/assets:/var/openproject/assets \
   openproject/openproject:14
