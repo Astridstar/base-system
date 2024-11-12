@@ -1,0 +1,4 @@
+docker run -d --name=vault --cap-add=IPC_LOCK -p 8200:8200 \
+  -v /data/storage/vault/config/value-config.hcl:/vault/config/value-config.hcl \
+  -v /data/storage/vault/data/:/vault/data \
+  hashicorp/vault server 
