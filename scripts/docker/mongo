@@ -1,0 +1,52 @@
+#!/bin/bash
+
+CONTAINER_NAME=mongodb
+USERNAME=mongoadmin
+PASSWORD=mongoadminpass
+
+preflight_check() {
+   docker volume create mongo_data
+   docker volume create mongo_config
+}
+
+start_mongodb() {
+    echo "Starting MongoDB container now....."
+    docker run -d --name $CONTAINER_NAME \
+        --add-host "host.docker.internal:host-gateway" \
+        -v mongo_config:/data/configdb \
+        -v mongo_data:/data/db \
+        -p 27017:27017 \
+        -e MONGO_INITDB_ROOT_USERNAME=$USERNAME \
+        -e MONGO_INITDB_ROOT_PASSWORD=$PASSWORD \
+        mongo
+}
+
+stop_mongodb() {
+    echo "Stopping MongoDB container now....."
+    docker container stop $CONTAINER_NAME
+    docker container rm $CONTAINER_NAME
+}
+
+delete_mongodb() {
+    echo "Deleting MongoDB container now....."
+    stop_mongodb
+    docker volume rm mongo_data   
+    docker volume rm mongo_config
+}
+
+# check if command line argument is empty or not present
+if [ -z $1 ]; 
+then
+    echo "No arguement provided to determine to start/stop/delete the container"
+    exit 0
+fi
+
+case "$1" in
+    "stop")
+        stop_mongodb ;;
+    "start")
+        preflight_check
+        start_mongodb ;;
+    "delete")
+        delete_mongodb ;;
+esac
