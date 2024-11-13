@@ -1,8 +1,10 @@
 #!/bin/bash
 
-POSTGRES_USER=postgres 
+DATA_DIR=/data/storage/postgresql/pgdata
+POSTGRES_USER=admin 
 POSTGRES_PASSWORD=SuperSecret
 
+PG_DATA_DIR=/data/storage/pgadmin/data
 PGADMIN_DEFAULT_EMAIL="user@example.com"
 PGADMIN_DEFAULT_PASSWORD=Somerandompassword
 
@@ -10,18 +12,28 @@ PGSQL_CONTAINER_NAME=postgresql
 PGADSMIN_CONTAINER_NAME=pgadmin
 
 postgres_preflight_check() {
-   docker volume create pgdata
+    if [ ! -d $DATA_DIR ]; then
+        echo "Data Directory [$DATA_DIR] doesn't exist, Creating a new one now....."
+        mkdir -p $DATA_DIR
+    fi
+    
 }
 pgadmin_preflight_check() {
-    docker volume create pgamdin
+
+    if [ ! -d $PG_DATA_DIR ]; then
+    echo "Data Directory [$PG_DATA_DIR] doesn't exist, Creating a new one now....."
+    mkdir -p $PG_DATA_DIR
+    fi
+    
 }
 
 start_postgres() {
     echo "Starting PostgreSQL container now....."
     docker run -d --name $PGSQL_CONTAINER_NAME \
         --add-host "host.docker.internal:host-gateway" \
-        -v pgdata:/var/lib/postgresql/data \
         -p 5432:5432 \
+        -v $DATA_DIR:/var/lib/postgresql/data \
+        -e PGDATA=$DATA_DIR \
         -e POSTGRES_USER=$POSTGRES_USER \
         -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
         postgres:17-bullseye
@@ -31,7 +43,7 @@ start_pgadmin() {
     echo "Starting PGAdmin container now....."
     docker run -d --name $PGADSMIN_CONTAINER_NAME -p 80:80 \
         --add-host "host.docker.internal:host-gateway" \
-        -v pgamdin:/var/lib/pgadmin \
+        -v $PG_DATA_DIR:/var/lib/pgadmin \
         -e PGADMIN_DEFAULT_EMAIL=$PGADMIN_DEFAULT_EMAIL \
         -e PGADMIN_DEFAULT_PASSWORD=$PGADMIN_DEFAULT_PASSWORD \
         dpage/pgadmin4:8.12.0       
@@ -52,14 +64,22 @@ stop_pgadmin() {
 delete_postgres() {
     echo "Deleting PostgreSQL container now....."
     stop_postgres
-    docker volume rm pgdata   
+
+    if [ -d $DATA_DIR ]; then
+        echo "Cleaning upData Directory [$DATA_DIR] doesn't exist."
+        rm -rf $DATA_DIR
+    fi    
 }
 
 delete_pgadmin() {
     echo "Deleting PGAdmin container now....."
     stop_pgadmin
-    docker volume rm pgamdin       
+    if [ -d $PG_DATA_DIR ]; then
+        echo "Cleaning upData Directory [$PG_DATA_DIR] doesn't exist."
+        rm -rf $PG_DATA_DIR
+    fi      
 }
+
 
 # check if command line argument is empty or not present
 if [ -z $1 ]; 
