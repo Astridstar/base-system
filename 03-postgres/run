@@ -7,12 +7,12 @@ then
     exit 0
 fi
 
-sudo docker network create database
+docker network create database
 
 case "$1" in
     "down")
-        sudo docker-compose -f postgresql-docker-compose.yml down ;;
+        docker compose -f postgresql-docker-compose.yml down ;;
     "up")
-        sudo docker-compose -f postgresql-docker-compose.yml up -d --no-recreate ;;
+        docker compose -f postgresql-docker-compose.yml up -d --no-recreate ;;
 esac
 

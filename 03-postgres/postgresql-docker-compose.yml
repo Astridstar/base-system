@@ -17,6 +17,13 @@ services:
       labels:
         - "tier=db"
         - "com.docker.compose.project=postrgres"
+      extra_hosts:
+          - "host.docker.internal:host-gateway"  
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready"]
+        interval: 1s
+        timeout: 5s
+        retries: 10  
 
     pgadmin:
       image: dpage/pgadmin4
@@ -37,7 +44,9 @@ services:
       labels:
         - "tier=db"
         - "com.docker.compose.project=postrgres"
-
+      extra_hosts:
+          - "host.docker.internal:host-gateway" 
+          
 networks:
   database:
     external: true
